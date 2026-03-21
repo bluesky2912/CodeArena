@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeArena ⚔️ — Gamified Code Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div id="app">
+  <header>
+    <a class="logo" href="#">
+      <div class="logo-mark">⚔️</div>
+      <span class="logo-text">CodeArena</span>
+    </a>
+    <div class="h-space"></div>
+    <div class="rank-pill">
+      <span class="rank-emoji" id="rank-emoji">🌱</span>
+      <span class="rank-name" id="rank-name">Noob</span>
+      <span class="rank-xp-txt" id="rank-xp">0 XP</span>
+      <div class="xp-track"><div class="xp-bar" id="xp-bar"></div></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Column -->
+    <div id="left-col">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="mac">
+            <div class="mac-dot" style="background:#ef4444"></div>
+            <div class="mac-dot" style="background:#f59e0b"></div>
+            <div class="mac-dot" style="background:#22c55e"></div>
+          </div>
+          Code Editor
+          <div style="margin-left:auto">
+            <select class="lang-pill" id="lang-sel">
+              <option value="javascript">JavaScript</option>
+              <option value="typescript">TypeScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="go">Go</option>
+              <option value="rust">Rust</option>
+              <option value="php">PHP</option>
+              <option value="ruby">Ruby</option>
+              <option value="swift">Swift</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="editor-wrap">
+          <div class="line-nums" id="line-nums" aria-hidden="true"><span>1</span></div>
+          <textarea class="code-ta" id="code-ta"
+            placeholder="// Paste your code here…&#10;// The arena has no mercy."
+            spellcheck="false" autocorrect="off" autocomplete="off"
+            aria-label="Code input"></textarea>
+        </div>
+
+        <div class="persona-grid" id="persona-grid"></div>
+        <div class="p-desc" id="p-desc"></div>
+
+        <div class="opts-row">
+          <label class="tog-lbl">
+            <input type="checkbox" id="roast-tog" checked>
+            <div class="tog-track"></div>
+            🔥 Roast Mode
+          </label>
+          <label class="tog-lbl">
+            <input type="checkbox" id="hl-tog" checked>
+            <div class="tog-track"></div>
+            🎨 Highlights
+          </label>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn-arena" id="review-btn">
+            <span id="btn-icon">⚔️</span>
+            <span id="btn-txt">Enter the Arena</span>
+          </button>
+          <span style="color:var(--t2);font-size:11px"><span class="kbd" id="kbd-hint">⌘↵</span></span>
+          <button class="btn-ghost" id="example-btn">Load example</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          🔥 Review Streak
+          <span style="margin-left:auto;font-size:11px;color:var(--orange)" id="streak-label">No reviews yet</span>
+        </div>
+        <div class="streak-body">
+          <span class="streak-lbl">Today</span>
+          <div class="streak-dots" id="streak-dots"></div>
+          <span class="streak-cnt-lbl" id="streak-cnt" style="display:none"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div id="right-col">
+      <div class="card" id="result-card">
+        <div id="st-empty" class="empty-state">
+          <div class="empty-glyph">🏟️</div>
+          <div class="empty-title">The arena awaits.</div>
+          <div class="empty-body">Paste code on the left, pick a reviewer, and hit <strong style="color:var(--t1)">Enter the Arena</strong>.</div>
+        </div>
+
+        <div id="st-loading" class="loading-state" style="display:none">
+          <div class="loader-ring"></div>
+          <div class="loading-txt" id="load-msg">Summoning <strong>senior dev</strong>…</div>
+          <div class="dot-row">
+            <div class="dot-pulse"></div>
+            <div class="dot-pulse"></div>
+            <div class="dot-pulse"></div>
+          </div>
+        </div>
+
+        <div id="st-results" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="ui.js"></script>
+<script src="api.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
