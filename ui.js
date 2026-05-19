@@ -1,24 +1,8 @@
-/* ─── DOM helpers ──────────────────────────────────── */
-const $  = s => document.querySelector(s);
-const $$ = (s, ctx) => Array.from((ctx || document).querySelectorAll(s));
-const esc = s => String(s)
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
+'use strict';
 
-/* ─── App state ────────────────────────────────────── */
-const S = { xp: 0, reviews: 0, persona: 'senior', busy: false };
-
-/* ─── State switcher ───────────────────────────────── */
-function showState(name) {
-  ['empty', 'loading', 'results'].forEach(k => {
-    const el = $(`#st-${k}`);
-    if (el) el.style.display = k === name ? '' : 'none';
-  });
-}
-
-/* ─── Line numbers ─────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   LINE NUMBERS
+   ════════════════════════════════════════════════════ */
 function syncLines() {
   const ta   = $('#code-ta');
   const lnEl = $('#line-nums');
@@ -38,7 +22,9 @@ function syncLines() {
   }
 }
 
-/* ─── Persona buttons ──────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   PERSONA BUTTONS
+   ════════════════════════════════════════════════════ */
 function buildPersonas() {
   const grid = $('#persona-grid');
   grid.innerHTML = '';
@@ -46,7 +32,11 @@ function buildPersonas() {
     const btn = document.createElement('button');
     btn.className = 'p-btn' + (p.id === S.persona ? ' active' : '');
     btn.dataset.id = p.id;
-    btn.innerHTML = `<span class="p-icon">${p.icon}</span><div><div class="p-label">${p.label}</div><div class="p-sub">${p.sub}</div></div>`;
+    btn.innerHTML  = `<span class="p-icon">${p.icon}</span>
+      <div>
+        <div class="p-label">${p.label}</div>
+        <div class="p-sub">${p.sub}</div>
+      </div>`;
     btn.addEventListener('click', () => {
       S.persona = p.id;
       $$('.p-btn').forEach(b => b.classList.toggle('active', b.dataset.id === p.id));
@@ -57,7 +47,9 @@ function buildPersonas() {
   $('#p-desc').textContent = PERSONAS.find(p => p.id === S.persona).desc;
 }
 
-/* ─── Streak dots ──────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   STREAK
+   ════════════════════════════════════════════════════ */
 function buildStreakDots() {
   const el = $('#streak-dots');
   el.innerHTML = '';
@@ -73,32 +65,33 @@ function bumpStreak() {
   $$('.streak-dot').forEach((d, i) => d.classList.toggle('lit', i < S.reviews));
   $('#streak-label').textContent = `${S.reviews} review${S.reviews === 1 ? '' : 's'} today`;
   const cnt = $('#streak-cnt');
-  cnt.textContent = S.reviews;
-  cnt.style.display = '';
+  cnt.textContent    = S.reviews;
+  cnt.style.display  = '';
 }
 
-/* ─── XP & rank ────────────────────────────────────── */
-function getRank(xp) {
-  return [...RANKS].reverse().find(r => xp >= r.min) || RANKS[0];
-}
-
+/* ════════════════════════════════════════════════════
+   XP + RANK
+   ════════════════════════════════════════════════════ */
 function gainXP(amt) {
   const prev = getRank(S.xp);
   S.xp += amt;
-  const cur = getRank(S.xp);
+  const cur  = getRank(S.xp);
+
   $('#rank-emoji').textContent = cur.emoji;
   $('#rank-name').textContent  = cur.name;
   $('#rank-name').style.color  = cur.color;
   $('#rank-xp').textContent    = S.xp + ' XP';
+
   const pct = Math.min(100, ((S.xp - cur.min) / (cur.max - cur.min)) * 100);
   $('#xp-bar').style.width = pct.toFixed(1) + '%';
+
   showXPToast('+' + amt + ' XP');
   if (prev.name !== cur.name) showRankToast(cur);
 }
 
 function showXPToast(msg) {
   const el = document.createElement('div');
-  el.className = 'xp-toast';
+  el.className   = 'xp-toast';
   el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => {
@@ -110,7 +103,9 @@ function showXPToast(msg) {
 function showRankToast(rank) {
   const el = document.createElement('div');
   el.className = 'rank-toast';
-  el.innerHTML = `<div class="rank-toast-title">${rank.emoji} Rank up! You're now a ${rank.name}</div><div class="rank-toast-sub">Keep reviewing to level up</div>`;
+  el.innerHTML = `
+    <div class="rank-toast-title">${rank.emoji} Rank up! You're now a ${rank.name}</div>
+    <div class="rank-toast-sub">Keep reviewing to level up</div>`;
   document.body.appendChild(el);
   setTimeout(() => {
     el.classList.add('out');
@@ -118,12 +113,9 @@ function showRankToast(rank) {
   }, 3500);
 }
 
-/* ─── Score color ──────────────────────────────────── */
-function scoreColor(n) {
-  return n >= 8 ? '#22c55e' : n >= 6 ? '#f59e0b' : n >= 4 ? '#f97316' : '#ef4444';
-}
-
-/* ─── Render results ───────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   RENDER RESULTS
+   ════════════════════════════════════════════════════ */
 function renderResults(data) {
   const showRoast = $('#roast-tog').checked;
   const showHL    = $('#hl-tog').checked;
@@ -136,22 +128,22 @@ function renderResults(data) {
   const oColor  = scoreColor(overall);
   const circ    = 2 * Math.PI * 36;
   const dash    = ((overall / 10) * circ).toFixed(2);
-  const risk    = RISK[(data.bug_risk_level || '').toLowerCase()] || RISK.low;
-  const riskText = (data.bug_risk_level || 'Low');
+  const riskKey = (data.bug_risk_level || 'low').toLowerCase();
+  const risk    = RISK[riskKey] || RISK.low;
+  const riskText = data.bug_risk_level || 'Low';
 
   const out = $('#st-results');
   out.innerHTML = '';
 
-  /* Grade ring + verdict */
+  /* ── Grade ring + verdict ── */
   const hdr = document.createElement('div');
   hdr.className = 'res-hdr';
   hdr.innerHTML = `
     <div class="grade-wrap">
       <svg width="88" height="88" viewBox="0 0 88 88">
         <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/>
-        <circle id="grade-arc" cx="44" cy="44" r="36" fill="none" stroke="${oColor}" stroke-width="6"
-          stroke-dasharray="0 ${circ.toFixed(2)}" stroke-linecap="round"
-          style="transition:stroke-dasharray 1s cubic-bezier(.22,1,.36,1)"/>
+        <circle class="grade-arc" cx="44" cy="44" r="36" fill="none" stroke="${oColor}" stroke-width="6"
+          stroke-dasharray="0 ${circ.toFixed(2)}" stroke-linecap="round"/>
       </svg>
       <div class="grade-lbl">
         <span class="grade-val" style="color:${oColor}">${oStr}</span>
@@ -164,17 +156,16 @@ function renderResults(data) {
     </div>`;
   out.appendChild(hdr);
 
-  /* Animate arc */
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const arc = out.querySelector('#grade-arc');
-      if (arc) arc.setAttribute('stroke-dasharray', `${dash} ${circ.toFixed(2)}`);
-    });
-  });
+  /* Animate arc after paint */
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const arc = out.querySelector('.grade-arc');
+    if (arc) arc.setAttribute('stroke-dasharray', `${dash} ${circ.toFixed(2)}`);
+  }));
 
-  /* Score cards */
+  /* ── Score cards ── */
   const grid = document.createElement('div');
   grid.className = 'scores-grid';
+
   const cardDefs = [
     { label: '🧠 Brain',       val: bs,   isScore: true  },
     { label: '🧹 Clean',       val: cs,   isScore: true  },
@@ -182,9 +173,10 @@ function renderResults(data) {
     { label: '🔥 Bug Risk',    val: null, isScore: false },
   ];
 
-  cardDefs.forEach(def => {
+  cardDefs.forEach((def, i) => {
     const card = document.createElement('div');
     card.className = 'score-card';
+
     if (def.isScore) {
       const col = scoreColor(def.val);
       card.innerHTML = `
@@ -200,12 +192,8 @@ function renderResults(data) {
         <div class="sc-track"><div class="sc-fill" data-pct="${risk.pct}" style="background:${risk.color}"></div></div>`;
     }
     grid.appendChild(card);
-  });
-  out.appendChild(grid);
 
-  /* BUG FIX 1 & 2: Removed the broken $$('. score-card') call (space in selector)
-     and the duplicate animation loop. Only one correct loop below. */
-  Array.from(grid.querySelectorAll('.score-card')).forEach((card, i) => {
+    /* Stagger in */
     setTimeout(() => {
       card.classList.add('vis');
       const fill = card.querySelector('.sc-fill');
@@ -213,32 +201,37 @@ function renderResults(data) {
     }, i * 80);
   });
 
-  /* Roast */
+  out.appendChild(grid);
+
+  /* ── Roast ── */
   if (showRoast && data.roast) {
     const roast = document.createElement('div');
     roast.className = 'roast-card';
-    roast.innerHTML = `<div class="roast-hdr">🔥 Roast</div><div class="roast-body">"${esc(data.roast)}"</div>`;
+    roast.innerHTML = `
+      <div class="roast-hdr">🔥 Roast</div>
+      <div class="roast-body">"${esc(data.roast)}"</div>`;
     out.appendChild(roast);
     setTimeout(() => roast.classList.add('vis'), 320);
   }
 
-  /* Tabs */
+  /* ── Tabs ── */
   const hasHL = showHL && data.highlights &&
-    ((data.highlights.bad || []).length + (data.highlights.warn || []).length + (data.highlights.good || []).length) > 0;
-  const tabs    = ['suggestions'];
-  if (hasHL) tabs.push('highlights');
+    ((data.highlights.bad  || []).length +
+     (data.highlights.warn || []).length +
+     (data.highlights.good || []).length) > 0;
 
+  const tabIds   = ['suggestions', ...(hasHL ? ['highlights'] : [])];
   const tabsBar  = document.createElement('div');
   tabsBar.className = 'tabs-bar';
   const panelMap = {};
 
-  tabs.forEach((id, i) => {
+  tabIds.forEach((id, i) => {
     const label = id === 'suggestions' ? '🛠 Suggestions' : '🎨 Highlights';
     const btn   = document.createElement('button');
-    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.className   = 'tab-btn' + (i === 0 ? ' active' : '');
     btn.textContent = label;
     btn.addEventListener('click', () => {
-      Array.from(tabsBar.querySelectorAll('.tab-btn')).forEach(b => b.classList.remove('active'));
+      $$('.tab-btn', tabsBar).forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       Object.values(panelMap).forEach(p => p.classList.remove('active'));
       panelMap[id].classList.add('active');
@@ -247,11 +240,11 @@ function renderResults(data) {
   });
   out.appendChild(tabsBar);
 
-  /* Suggestions panel */
+  /* ── Suggestions panel ── */
   const sugPanel = document.createElement('div');
   sugPanel.className = 'tab-panel active';
   const sugList  = document.createElement('div');
-  sugList.className = 'sug-list';
+  sugList.className  = 'sug-list';
   (data.suggestions || []).forEach((txt, i) => {
     const item = document.createElement('div');
     item.className = 'sug-item';
@@ -263,7 +256,7 @@ function renderResults(data) {
   out.appendChild(sugPanel);
   panelMap.suggestions = sugPanel;
 
-  /* Highlights panel */
+  /* ── Highlights panel ── */
   if (hasHL) {
     const hlPanel = document.createElement('div');
     hlPanel.className = 'tab-panel';
@@ -274,6 +267,7 @@ function renderResults(data) {
 
     const wrap = document.createElement('div');
     wrap.className = 'hl-code-wrap';
+
     $('#code-ta').value.split('\n').forEach((line, idx) => {
       const n   = idx + 1;
       const cls = badSet.has(n) ? 'bad' : warnSet.has(n) ? 'warn' : goodSet.has(n) ? 'good' : '';
@@ -284,8 +278,7 @@ function renderResults(data) {
     });
     hlPanel.appendChild(wrap);
 
-    /* BUG FIX 3: Was using innerHTML += which destroyed the appended `wrap` node.
-       Now using DOM methods to append the legend separately. */
+    /* FIX: use appendChild for legend — never innerHTML += (destroys child nodes) */
     const legend = document.createElement('div');
     legend.className = 'hl-legend';
     legend.innerHTML = `
