@@ -56,7 +56,7 @@ async function runReview() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',  // BUG FIX 4: corrected model string
         max_tokens: 1200,
         system: p.sys,
         messages: [{ role: 'user', content: makePrompt(code, lang, roast, hl) }],
