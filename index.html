@@ -4,16 +4,24 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CodeArena ⚔️ — Gamified Code Review</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
+<!-- Ambient background orbs -->
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
 
 <div id="app">
+
+  <!-- ── Header ──────────────────────────────────── -->
   <header>
     <a class="logo" href="#">
       <div class="logo-mark">⚔️</div>
@@ -21,17 +29,21 @@
     </a>
     <div class="h-space"></div>
     <div class="rank-pill">
-      <span class="rank-emoji" id="rank-emoji">🌱</span>
-      <span class="rank-name" id="rank-name">Noob</span>
+      <span class="rank-emoji"  id="rank-emoji">🌱</span>
+      <span class="rank-name"   id="rank-name">Noob</span>
       <span class="rank-xp-txt" id="rank-xp">0 XP</span>
       <div class="xp-track"><div class="xp-bar" id="xp-bar"></div></div>
     </div>
   </header>
 
+  <!-- ── Main two-column grid ────────────────────── -->
   <main>
-    <!-- Left Column -->
+
+    <!-- Left column -->
     <div id="left-col">
       <div class="card">
+
+        <!-- Card header -->
         <div class="card-hdr">
           <div class="mac">
             <div class="mac-dot" style="background:#ef4444"></div>
@@ -55,17 +67,24 @@
           </div>
         </div>
 
+        <!-- Editor -->
         <div class="editor-wrap">
-          <div class="line-nums" id="line-nums" aria-hidden="true"><span>1</span></div>
-          <textarea class="code-ta" id="code-ta"
+          <div class="line-nums" id="line-nums" aria-hidden="true">
+            <span>1</span>
+          </div>
+          <textarea
+            class="code-ta" id="code-ta"
             placeholder="// Paste your code here…&#10;// The arena has no mercy."
             spellcheck="false" autocorrect="off" autocomplete="off"
-            aria-label="Code input"></textarea>
+            aria-label="Code input"
+          ></textarea>
         </div>
 
+        <!-- Persona selector -->
         <div class="persona-grid" id="persona-grid"></div>
         <div class="p-desc" id="p-desc"></div>
 
+        <!-- Option toggles -->
         <div class="opts-row">
           <label class="tog-lbl">
             <input type="checkbox" id="roast-tog" checked>
@@ -79,16 +98,21 @@
           </label>
         </div>
 
+        <!-- Action bar -->
         <div class="action-bar">
           <button class="btn-arena" id="review-btn">
             <span id="btn-icon">⚔️</span>
             <span id="btn-txt">Enter the Arena</span>
           </button>
-          <span style="color:var(--t2);font-size:11px"><span class="kbd" id="kbd-hint">⌘↵</span></span>
+          <span style="color:var(--t2);font-size:11px">
+            <span class="kbd" id="kbd-hint">⌘↵</span>
+          </span>
           <button class="btn-ghost" id="example-btn">Load example</button>
         </div>
-      </div>
 
+      </div><!-- /card -->
+
+      <!-- Streak card -->
       <div class="card">
         <div class="card-hdr">
           🔥 Review Streak
@@ -100,20 +124,29 @@
           <span class="streak-cnt-lbl" id="streak-cnt" style="display:none"></span>
         </div>
       </div>
-    </div>
 
-    <!-- Right Column -->
+    </div><!-- /left-col -->
+
+    <!-- Right column — results panel -->
     <div id="right-col">
       <div class="card" id="result-card">
+
+        <!-- Empty state -->
         <div id="st-empty" class="empty-state">
           <div class="empty-glyph">🏟️</div>
           <div class="empty-title">The arena awaits.</div>
-          <div class="empty-body">Paste code on the left, pick a reviewer, and hit <strong style="color:var(--t1)">Enter the Arena</strong>.</div>
+          <div class="empty-body">
+            Paste code on the left, pick a reviewer, and hit
+            <strong style="color:var(--t1)">Enter the Arena</strong>.
+          </div>
         </div>
 
+        <!-- Loading state -->
         <div id="st-loading" class="loading-state" style="display:none">
           <div class="loader-ring"></div>
-          <div class="loading-txt" id="load-msg">Summoning <strong>senior dev</strong>…</div>
+          <div class="loading-txt" id="load-msg">
+            Summoning <strong>senior dev</strong>…
+          </div>
           <div class="dot-row">
             <div class="dot-pulse"></div>
             <div class="dot-pulse"></div>
@@ -121,13 +154,25 @@
           </div>
         </div>
 
+        <!-- Results (populated by renderResults()) -->
         <div id="st-results" style="display:none"></div>
-      </div>
-    </div>
-  </main>
-</div>
 
+      </div>
+    </div><!-- /right-col -->
+
+  </main>
+</div><!-- /app -->
+
+<!--
+  Script load order matters — each file depends on the ones above it:
+  1. data.js   → PERSONAS, RANKS, EXAMPLES, RISK  (pure constants)
+  2. state.js  → S, $, $$, esc, scoreColor, getRank, showState  (shared helpers)
+  3. ui.js     → syncLines, buildPersonas, gainXP, renderResults, etc.
+  4. api.js    → makePrompt, runReview  (needs ui.js + state.js)
+  5. main.js   → init(), event bindings  (needs everything above)
+-->
 <script src="data.js"></script>
+<script src="state.js"></script>
 <script src="ui.js"></script>
 <script src="api.js"></script>
 <script src="main.js"></script>
