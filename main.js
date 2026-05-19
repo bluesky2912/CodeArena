@@ -1,9 +1,9 @@
-/* ─── Example loader ───────────────────────────────── */
-let exIdx = 0;
+'use strict';
 
+/* ─── Example loader ───────────────────────────────── */
 function loadExample() {
   const ta = $('#code-ta');
-  ta.value = EXAMPLES[exIdx++ % EXAMPLES.length];
+  ta.value = EXAMPLES[S.exIdx++ % EXAMPLES.length];
   syncLines();
   ta.focus();
 }
@@ -13,12 +13,19 @@ function loadExample() {
   const ta   = $('#code-ta');
   const lnEl = $('#line-nums');
 
-  /* Line number sync */
+  /* Sync line numbers on input */
   ta.addEventListener('input', syncLines);
-  ta.addEventListener('scroll', () => { lnEl.scrollTop = ta.scrollTop; });
 
-  /* Keyboard shortcut */
-  $('#kbd-hint').textContent = /mac/i.test(navigator.platform) ? '⌘↵' : 'Ctrl↵';
+  /* Keep line-number gutter scroll in sync with textarea */
+  ta.addEventListener('scroll', () => {
+    lnEl.scrollTop = ta.scrollTop;
+  });
+
+  /* Platform-aware keyboard shortcut label */
+  const isMac = /mac/i.test(navigator.platform) || /mac/i.test(navigator.userAgent);
+  $('#kbd-hint').textContent = isMac ? '⌘↵' : 'Ctrl↵';
+
+  /* Global keyboard shortcut Cmd/Ctrl + Enter → run review */
   document.addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
@@ -27,7 +34,7 @@ function loadExample() {
   });
 
   /* Button bindings */
-  $('#review-btn').addEventListener('click', runReview);
+  $('#review-btn').addEventListener('click',  runReview);
   $('#example-btn').addEventListener('click', loadExample);
 
   /* Initial renders */
