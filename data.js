@@ -1,3 +1,5 @@
+'use strict';
+
 /* ─── Personas ─────────────────────────────────────── */
 const PERSONAS = [
   {
@@ -43,7 +45,7 @@ const RANKS = [
   { name: 'Noob',        emoji: '🌱',  color: '#6b7280', min: 0,    max: 250   },
   { name: 'Dev',         emoji: '💻',  color: '#22c55e', min: 250,  max: 700   },
   { name: 'Senior',      emoji: '🧑‍💻', color: '#6366f1', min: 700,  max: 1500  },
-  { name: 'Code Wizard', emoji: '🧙‍♂️', color: '#f59e0b', min: 1500, max: 99999 },
+  { name: 'Code Wizard', emoji: '🧙',  color: '#f59e0b', min: 1500, max: 99999 },
 ];
 
 /* ─── Example snippets ─────────────────────────────── */
@@ -85,8 +87,8 @@ const EXAMPLES = [
 
 /* ─── Risk level config ────────────────────────────── */
 const RISK = {
-  low:      { color: '#22c55e', bg: 'rgba(34,197,94,.12)',   pct: 15  },
-  medium:   { color: '#f59e0b', bg: 'rgba(245,158,11,.12)',  pct: 45  },
-  high:     { color: '#f97316', bg: 'rgba(249,115,22,.12)',  pct: 75  },
-  critical: { color: '#ef4444', bg: 'rgba(239,68,68,.12)',   pct: 100 },
+  low:      { color: '#22c55e', bg: 'rgba(34,197,94,.15)',   pct: 15  },
+  medium:   { color: '#f59e0b', bg: 'rgba(245,158,11,.15)',  pct: 45  },
+  high:     { color: '#f97316', bg: 'rgba(249,115,22,.15)',  pct: 75  },
+  critical: { color: '#ef4444', bg: 'rgba(239,68,68,.15)',   pct: 100 },
 };
