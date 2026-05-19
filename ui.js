@@ -176,9 +176,9 @@ function renderResults(data) {
   const grid = document.createElement('div');
   grid.className = 'scores-grid';
   const cardDefs = [
-    { label: '🧠 Brain',       val: bs, isScore: true  },
-    { label: '🧹 Clean',       val: cs, isScore: true  },
-    { label: '⚡ Performance', val: ps, isScore: true  },
+    { label: '🧠 Brain',       val: bs,   isScore: true  },
+    { label: '🧹 Clean',       val: cs,   isScore: true  },
+    { label: '⚡ Performance', val: ps,   isScore: true  },
     { label: '🔥 Bug Risk',    val: null, isScore: false },
   ];
 
@@ -203,16 +203,8 @@ function renderResults(data) {
   });
   out.appendChild(grid);
 
-  /* Stagger card animations */
-  $$('. score-card', grid).forEach((card, i) => {
-    setTimeout(() => {
-      card.classList.add('vis');
-      const fill = card.querySelector('.sc-fill');
-      if (fill) requestAnimationFrame(() => { fill.style.width = fill.dataset.pct + '%'; });
-    }, i * 80);
-  });
-
-  // Fix: use direct NodeList from grid
+  /* BUG FIX 1 & 2: Removed the broken $$('. score-card') call (space in selector)
+     and the duplicate animation loop. Only one correct loop below. */
   Array.from(grid.querySelectorAll('.score-card')).forEach((card, i) => {
     setTimeout(() => {
       card.classList.add('vis');
@@ -275,10 +267,12 @@ function renderResults(data) {
   if (hasHL) {
     const hlPanel = document.createElement('div');
     hlPanel.className = 'tab-panel';
+
     const badSet  = new Set((data.highlights.bad  || []).map(Number));
     const warnSet = new Set((data.highlights.warn || []).map(Number));
     const goodSet = new Set((data.highlights.good || []).map(Number));
-    const wrap    = document.createElement('div');
+
+    const wrap = document.createElement('div');
     wrap.className = 'hl-code-wrap';
     $('#code-ta').value.split('\n').forEach((line, idx) => {
       const n   = idx + 1;
@@ -289,11 +283,17 @@ function renderResults(data) {
       wrap.appendChild(row);
     });
     hlPanel.appendChild(wrap);
-    hlPanel.innerHTML += `<div class="hl-legend">
+
+    /* BUG FIX 3: Was using innerHTML += which destroyed the appended `wrap` node.
+       Now using DOM methods to append the legend separately. */
+    const legend = document.createElement('div');
+    legend.className = 'hl-legend';
+    legend.innerHTML = `
       <div class="hl-leg-item"><div class="hl-leg-dot" style="background:rgba(239,68,68,.5)"></div> Critical</div>
       <div class="hl-leg-item"><div class="hl-leg-dot" style="background:rgba(245,158,11,.5)"></div> Warning</div>
-      <div class="hl-leg-item"><div class="hl-leg-dot" style="background:rgba(34,197,94,.5)"></div> Clean</div>
-    </div>`;
+      <div class="hl-leg-item"><div class="hl-leg-dot" style="background:rgba(34,197,94,.5)"></div> Clean</div>`;
+    hlPanel.appendChild(legend);
+
     out.appendChild(hlPanel);
     panelMap.highlights = hlPanel;
   }
